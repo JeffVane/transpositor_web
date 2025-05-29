@@ -6,6 +6,30 @@ import numpy as np
 from werkzeug.utils import secure_filename
 import time
 import json
+import requests
+import webbrowser
+
+def verificar_versao():
+    try:
+        # Lê a versão local do arquivo
+        with open("version.txt", "r") as f:
+            versao_local = f.read().strip()
+
+        # Lê a versão publicada online (altere a URL para seu repositório real)
+        url = "https://raw.githubusercontent.com/JeffVane/transpositor_web/main/version.txt"
+        resposta = requests.get(url)
+        versao_remota = resposta.text.strip()
+
+        # Compara as versões
+        if versao_remota > versao_local:
+            print(f"\n🔔 Nova versão disponível: {versao_remota}")
+            print("Abrindo página de atualização...")
+            webbrowser.open("https://github.com/SEU_USUARIO/transpositor_web/releases/latest")
+        else:
+            print("✅ Você está usando a versão mais recente.")
+    except Exception as e:
+        print(f"⚠️ Erro ao verificar atualizações: {e}")
+
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'uploads'
@@ -388,4 +412,6 @@ def historico():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    verificar_versao()
+    port = int(os.environ.get('PORT', 10000))
+    app.run(host='0.0.0.0', port=port)
