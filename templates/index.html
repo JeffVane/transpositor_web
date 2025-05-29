@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transpositor Interativo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container py-5">
+        <div class="card main-card shadow-lg border-0">
+            <div class="card-body">
+                <h1 class="card-title text-center mb-4">
+                    <i class="fas fa-music music-icon"></i> Transpositor Interativo
+                </h1>
+
+                <div class="upload-container text-center">
+                    <label for="audioFile" class="upload-label">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span>Selecione ou arraste seu arquivo de áudio (.wav, .mp3, .ogg)</span>
+                    </label>
+                    <input type="file" class="d-none" id="audioFile" accept="audio/*">
+                    <div id="fileName" class="mt-2"></div>
+                </div>
+
+                <div class="my-3" id="progressContainer" style="display:none;">
+                    <label class="form-label">Enviando arquivo...</label>
+                    <div class="progress upload-progress">
+                        <div id="uploadProgress" class="progress-bar" role="progressbar" style="width: 0%">0%</div>
+                    </div>
+                </div>
+
+                <div id="audio-section" style="display: none;" class="mt-4">
+                    <div class="audio-player-container">
+                        <h5 class="text-center mb-3">
+                            <i class="fas fa-headphones"></i> Áudio
+                        </h5>
+                        <div class="key-info-container text-center mb-3">
+                            <span class="key-badge" id="originalKeyBadge">
+                                <i class="fas fa-music me-1"></i>
+                                Tom Original: <span id="originalKey">Analisando...</span>
+                            </span>
+                        </div>
+                        <audio id="audioPlayer" controls class="w-100 rounded"></audio>
+
+                        <div class="download-container text-center mt-3" id="downloadContainer" style="display:none;">
+                            <a href="#" id="downloadButton" class="btn btn-success">
+                                <i class="fas fa-download me-1"></i> Baixar áudio transposto
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="transpose-controls mt-4">
+                        <h5 class="text-center mb-3">
+                            <i class="fas fa-exchange-alt"></i> Transposição
+                        </h5>
+
+                        <div class="key-selection-info text-center mb-3">
+                            <span id="keyChangeDescription" class="key-change-text">Selecione um novo tom</span>
+                        </div>
+                        <div class="text-center mt-2">
+                            <strong>Semitons selecionados: <span id="toneValue">0</span></strong>
+                        </div>
+
+                        <div class="key-buttons-container">
+                            <div class="row key-buttons-row">
+                                <div class="col-12">
+                                    <div class="key-direction mb-2">
+                                        <h6><i class="fas fa-arrow-down me-1"></i> Tons Abaixo</h6>
+                                    </div>
+                                    <div class="key-buttons tone-down text-center mb-3" id="tonesDown"></div>
+                                </div>
+
+                                <div class="col-12 mt-3">
+                                    <div class="key-direction mb-2">
+                                        <h6><i class="fas fa-arrow-up me-1"></i> Tons Acima</h6>
+                                    </div>
+                                    <div class="key-buttons tone-up text-center" id="tonesUp"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="transpose-button-container text-center mt-4">
+                            <button id="transposeButton" class="btn btn-primary btn-transpose-action" disabled>
+                                <i class="fas fa-sync-alt me-1"></i> Mudar tom para <span id="selectedKeyText">selecione um tom</span>
+                            </button>
+                        </div>
+
+                        <div id="transposingStatus" class="text-center mt-2" style="display:none;">
+                            <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                                <span class="visually-hidden">Carregando...</span>
+                            </div>
+                            Transpondo áudio...
+                        </div>
+
+                        <div class="current-key-container text-center mt-3" id="currentKeyContainer" style="display:none;">
+                            <div class="key-badge new-key">
+                                <i class="fas fa-check-circle me-1"></i>
+                                Tom Atual: <span id="currentKey">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
