@@ -8,28 +8,21 @@ import time
 import json
 import requests
 import webbrowser
+import psutil
 
-def verificar_versao():
-    try:
-        # Lê a versão local do arquivo
-        with open("version.txt", "r") as f:
-            versao_local = f.read().strip()
+def liberar_porta(porta):
+    for proc in psutil.process_iter(['pid', 'name']):
+        try:
+            conexoes = proc.net_connections()
 
-        # Lê a versão publicada online (altere a URL para seu repositório real)
-        url = "https://raw.githubusercontent.com/JeffVane/transpositor_web/main/version.txt"
-        resposta = requests.get(url)
-        versao_remota = resposta.text.strip()
-
-        # Compara as versões
-        if versao_remota > versao_local:
-            print(f"\n🔔 Nova versão disponível: {versao_remota}")
-            print("Abrindo página de atualização...")
-            webbrowser.open("https://github.com/JeffVane/transpositor_web/releases/latest")
-        else:
-            print("✅ Você está usando a versão mais recente.")
-    except Exception as e:
-        print(f"⚠️ Erro ao verificar atualizações: {e}")
-
+            for con in conexoes:
+                if con.status == psutil.CONN_LISTEN and con.laddr.port == porta:
+                    print(f"🔴 Encerrando processo {proc.pid} que ocupava a porta {porta}...")
+                    proc.terminate()
+                    proc.wait(timeout=3)
+                    print(f"✅ Processo encerrado.")
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            continue
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'uploads'
@@ -407,11 +400,58 @@ def historico():
     return jsonify(arquivos)
 
 
-
-
-
-
 if __name__ == '__main__':
-    verificar_versao()
+    def verificar_versao_segura():
+        try:
+            import os
+            headless = os.environ.get("DISPLAY", "") == ""
+            from requests import get
+
+            with open("version.txt", "r") as f:
+                versao_local = f.read().strip()
+
+            url = "https://raw.githubusercontent.com/JeffVane/transpositor_web/refs/heads/master/version.txt"
+            versao_remota = get(url).text.strip()
+
+            if versao_remota > versao_local:
+                print(f"\n🔔 Nova versão disponível: {versao_remota}")
+                if not headless:
+                    import tkinter as tk
+                    from tkinter import messagebox
+                    root = tk.Tk()
+                    root.withdraw()
+                    if messagebox.askyesno("Atualização disponível", f"Nova versão ({versao_remota}) disponível. Atualizar agora?"):
+                        import webbrowser
+                        webbrowser.open("https://github.com/JeffVane/transpositor_web/releases/latest")
+                else:
+                    print("Interface gráfica indisponível. Acesse manualmente:")
+                    print("👉 https://github.com/JeffVane/transpositor_web/releases/latest")
+            else:
+                print("✅ Você está usando a versão mais recente.")
+        except Exception as e:
+            print(f"⚠️ Erro ao verificar versão: {e}")
+
+    verificar_versao_segura()
+    # Detecta e mata processos que usam a mesma porta
+    liberar_porta(10000)
+
+    # Pega IP local corretamente
+    try:
+        import socket
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip_local = s.getsockname()[0]
+        s.close()
+    except:
+        ip_local = "127.0.0.1"
+
     port = int(os.environ.get('PORT', 10000))
+    url = f"http://{ip_local}:{port}"
+
+    import threading, webbrowser
+    threading.Timer(1.0, lambda: webbrowser.open(url)).start()
+
+    print(f"🌐 Acesse: {url}")
     app.run(host='0.0.0.0', port=port)
+
+
