@@ -24,7 +24,7 @@ def verificar_versao():
         if versao_remota > versao_local:
             print(f"\n🔔 Nova versão disponível: {versao_remota}")
             print("Abrindo página de atualização...")
-            webbrowser.open("https://github.com/SEU_USUARIO/transpositor_web/releases/latest")
+            webbrowser.open("https://github.com/JeffVane/transpositor_web/releases/latest")
         else:
             print("✅ Você está usando a versão mais recente.")
     except Exception as e:
